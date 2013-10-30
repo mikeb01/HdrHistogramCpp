@@ -37,10 +37,6 @@ void loadHistograms(Histogram& histogramA, Histogram& histogramB)
     histogramB.recordValue(100000000L, 10000L);
 }
 
-void loadHistogramWithCorrection(Histogram& histogram)
-{
-}
-
 TEST(ShouldGetTotalCount)
 {
     Histogram histogram{ HIGHEST_TRACKABLE_VALUE, SIGNIFICANT_DIGITS };
@@ -82,4 +78,37 @@ TEST(ShouldGetMeanValue)
 
     double expectedCorrectedMean = (1000.0 + 50000000.0)/2;
     CHECK_CLOSE(expectedCorrectedMean, histogramCorrected.getMeanValue(), expectedCorrectedMean * 0.001);
+}
+
+TEST(ShouldGetPercentileValues)
+{
+    Histogram histogram{ HIGHEST_TRACKABLE_VALUE, SIGNIFICANT_DIGITS };
+    Histogram histogramCorrected{ HIGHEST_TRACKABLE_VALUE, SIGNIFICANT_DIGITS };
+    loadHistograms(histogram, histogramCorrected);
+
+    CHECK_CLOSE(1000.0, (double) histogram.getValueAtPercentile(30.0),
+                1000.0 * 0.001);
+    CHECK_CLOSE(1000.0, (double) histogram.getValueAtPercentile(99.0),
+                1000.0 * 0.001);
+    CHECK_CLOSE(1000.0, (double) histogram.getValueAtPercentile(99.99),
+                1000.0 * 0.001);
+    CHECK_CLOSE(100000000.0, (double) histogram.getValueAtPercentile(99.999),
+                100000000.0 * 0.001);
+    CHECK_CLOSE(100000000.0, (double) histogram.getValueAtPercentile(100.0),
+                100000000.0 * 0.001);
+
+    CHECK_CLOSE(1000.0, (double) histogramCorrected.getValueAtPercentile(30.0),
+                1000.0 * 0.001);
+    CHECK_CLOSE(1000.0, (double) histogramCorrected.getValueAtPercentile(50.0),
+                1000.0 * 0.001);
+    CHECK_CLOSE(50000000.0, (double) histogramCorrected.getValueAtPercentile(75.0),
+                50000000.0 * 0.001);
+    CHECK_CLOSE(80000000.0, (double) histogramCorrected.getValueAtPercentile(90.0),
+                80000000.0 * 0.001);
+    CHECK_CLOSE(98000000.0, (double) histogramCorrected.getValueAtPercentile(99.0),
+                98000000.0 * 0.001);
+    CHECK_CLOSE(100000000.0, (double) histogramCorrected.getValueAtPercentile(99.999),
+                100000000.0 * 0.001);
+    CHECK_CLOSE(100000000.0, (double) histogramCorrected.getValueAtPercentile(100.0),
+                100000000.0 * 0.001);
 }

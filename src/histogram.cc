@@ -77,26 +77,26 @@ uint64_t Histogram::getTotalCount() const
 
 void Histogram::forAll(std::function<void (const uint64_t value, const uint64_t count)> func) const
 {
-    uint32_t currentBucketIndex    = 0;
-    uint32_t currentSubBucketIndex = 0;
-    uint32_t currentCountToIndex   = 0;
-    uint64_t valueAtThisIndex      = 0;
+    uint32_t bucketIndex      = 0;
+    uint32_t subBucketIndex   = 0;
+    uint32_t countToIndex     = 0;
+    uint64_t valueAtThisIndex = 0;
 
-    while (currentCountToIndex < totalCount)
+    while (countToIndex < totalCount)
     {
-        auto countAtThisIndex = getCountAtIndex(currentBucketIndex, currentSubBucketIndex);
+        auto countAtThisIndex = getCountAtIndex(bucketIndex, subBucketIndex);
         func(valueAtThisIndex, countAtThisIndex);
 
-        currentCountToIndex += countAtThisIndex;
-        currentSubBucketIndex++;
+        countToIndex += countAtThisIndex;
+        subBucketIndex++;
 
-        if (currentSubBucketIndex >= subBucketCount)
+        if (subBucketIndex >= subBucketCount)
         {
-            currentSubBucketIndex = subBucketHalfCount;
-            currentBucketIndex++;
+            subBucketIndex = subBucketHalfCount;
+            bucketIndex++;
         }
 
-        valueAtThisIndex = currentSubBucketIndex << currentBucketIndex;
+        valueAtThisIndex = subBucketIndex << bucketIndex;
     }
 }
 
@@ -143,6 +143,29 @@ double Histogram::getMeanValue() const
     });
 
     return (totalValue * 1.0) / totalCount;
+}
+
+uint64_t Histogram::getValueAtPercentile(double requestedPercentile) const
+{
+    auto percentile        = fmin(fmax(requestedPercentile, 0), 100.0);
+    auto countAtPercentile = (uint64_t) (((percentile / 100.0) * totalCount) + 0.5);
+    countAtPercentile      = (uint64_t) countAtPercentile > 1 ? countAtPercentile : 1;
+
+    auto totalToCurrentIJ = 0UL;
+    for (uint32_t i = 0; i < bucketCount; i++)
+    {
+        uint32_t j = (i == 0) ? 0 : (subBucketCount / 2);
+        for (; j < subBucketCount / 2; j++)
+        {
+            totalToCurrentIJ += getCountAtIndex(i, j);
+            if (totalToCurrentIJ >= countAtPercentile)
+            {
+                return ((uint64_t) j) << i;
+            }
+        }
+    }
+
+    return 0;
 }
 
 /////////////////// Index Calcuations /////////////////////
