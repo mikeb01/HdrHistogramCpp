@@ -134,3 +134,16 @@ TEST(ShouldGetCountBetweenValues)
     CHECK_EQUAL(1,     histogram.getCountBetweenValues(5000L, 150000000L));
     CHECK_EQUAL(10000, histogramCorrected.getCountBetweenValues(5000L, 150000000L));
 }
+
+TEST(ShouldGetCountAtValue)
+{
+    Histogram histogram{ HIGHEST_TRACKABLE_VALUE, SIGNIFICANT_DIGITS };
+    Histogram histogramCorrected{ HIGHEST_TRACKABLE_VALUE, SIGNIFICANT_DIGITS };
+    loadHistograms(histogram, histogramCorrected);
+
+    CHECK_EQUAL(0,     histogram.getCountBetweenValues(10000L, 10010L));
+    CHECK_EQUAL(1,     histogramCorrected.getCountBetweenValues(10000L, 10010L));
+    CHECK_EQUAL(10000, histogram.getCountAtValue(1000L));
+    CHECK_EQUAL(10000, histogramCorrected.getCountAtValue(1000L));
+}
+
