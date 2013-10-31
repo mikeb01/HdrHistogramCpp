@@ -3,7 +3,6 @@ import os
 env = Environment()
 env['ENV']['TERM'] = os.environ['TERM']
 env["CXX"] = "clang++"
-#env["CXX"] = "g++"
 env["CPPPATH"] = []
 env["CPPFLAGS"] = ['-std=c++11', '-g']
 #env["CPPFLAGS"] += ['-stdlib=libc++']
@@ -14,7 +13,6 @@ lib.StaticLibrary('libUnitTest++', Glob('lib/test/UnitTest++/src/*.cpp') +
                                    Glob('lib/test/UnitTest++/src/Posix/*.cpp'))
 
 bin = env.Clone()
-#bin["CPPFLAGS"] += ['-mlzcnt']
 bin["CPPDEFINES"] = ['__LZCNT__']
 library = bin.StaticLibrary('histogram', 'src/histogram.cc')
 
