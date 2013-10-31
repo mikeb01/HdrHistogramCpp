@@ -2,4 +2,5 @@
 .sconsign.dblite
 *.o
 *.a
-runtests
+alltests
+onetest
