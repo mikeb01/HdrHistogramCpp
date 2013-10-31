@@ -24,6 +24,7 @@ public:
     uint64_t medianEquivalentValue(uint64_t value) const;
     uint64_t sizeOfEquivalentRange(uint64_t value) const;
     uint64_t getValueAtPercentile(double percentile) const;
+    double getPercentileAtOrBelowValue(uint64_t value) const;
 
     void recordValue(uint64_t value);
     void recordValue(uint64_t value, uint64_t expectedInterval);

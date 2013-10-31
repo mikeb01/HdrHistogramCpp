@@ -168,6 +168,32 @@ uint64_t Histogram::getValueAtPercentile(double requestedPercentile) const
     return 0;
 }
 
+double Histogram::getPercentileAtOrBelowValue(uint64_t value) const
+{
+    auto totalToCurrentIJ = 0ULL;
+
+    auto targetBucketIndex    = getBucketIndex(value);
+    auto targetSubBucketIndex = getSubBucketIndex(value, targetBucketIndex);
+
+    if (targetBucketIndex >= bucketCount)
+    {
+        return 100.0;
+    }
+
+    for (uint32_t i = 0; i <= targetBucketIndex; i++)
+    {
+        auto j = (i == 0) ? 0 : (subBucketCount / 2);
+        auto subBucketCap = (i == targetBucketIndex) ? (targetSubBucketIndex + 1) : subBucketCount;
+
+        for (; j < subBucketCap; j++)
+        {
+            totalToCurrentIJ += getCountAtIndex(i, j);
+        }
+    }
+
+    return (100.0 * totalToCurrentIJ) / getTotalCount();
+}
+
 /////////////////// Index Calcuations /////////////////////
 
 uint32_t Histogram::countsIndexFor(uint64_t value) const

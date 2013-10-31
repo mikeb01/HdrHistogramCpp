@@ -112,3 +112,14 @@ TEST(ShouldGetPercentileValues)
     CHECK_CLOSE(100000000.0, (double) histogramCorrected.getValueAtPercentile(100.0),
                 100000000.0 * 0.001);
 }
+
+TEST(ShouldGetPercentileAtOrBelowValue)
+{
+    Histogram histogram{ HIGHEST_TRACKABLE_VALUE, SIGNIFICANT_DIGITS };
+    Histogram histogramCorrected{ HIGHEST_TRACKABLE_VALUE, SIGNIFICANT_DIGITS };
+    loadHistograms(histogram, histogramCorrected);
+
+    CHECK_CLOSE(99.99, histogram.getPercentileAtOrBelowValue(5000),                0.0001);
+    CHECK_CLOSE(50.0,  histogramCorrected.getPercentileAtOrBelowValue(5000),       0.0001);
+    CHECK_CLOSE(100.0, histogramCorrected.getPercentileAtOrBelowValue(100000000L), 0.0001);    
+}
