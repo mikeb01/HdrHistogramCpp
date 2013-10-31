@@ -325,10 +325,10 @@ bool Histogram::valuesAreEquivalent(uint64_t a, uint64_t b) const
 
 uint64_t Histogram::lowestEquivalentValue(uint64_t value) const
 {
-    auto bucketIndex    = (uint64_t) getBucketIndex(value);
-    auto subBucketIndex = (uint64_t) getSubBucketIndex(value, bucketIndex);
+    auto bucketIndex    = getBucketIndex(value);
+    auto subBucketIndex = getSubBucketIndex(value, bucketIndex);
 
-    return subBucketIndex << bucketIndex;
+    return valueFromIndex(bucketIndex, subBucketIndex);
 }
 
 uint64_t Histogram::medianEquivalentValue(uint64_t value) const
