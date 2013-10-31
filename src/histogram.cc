@@ -20,6 +20,11 @@ static uint64_t power(uint64_t base, uint64_t exp)
     return result;
 }
 
+static uint64_t valueFromIndex(uint32_t bucketIndex, uint32_t subBucketIndex)
+{
+    return ((uint64_t) subBucketIndex) << bucketIndex;
+}
+
 Histogram::Histogram( uint64_t highestTrackableValue,
                       uint64_t numberOfSignificantValueDigits ) :
     highestTrackableValue{ highestTrackableValue },
@@ -160,7 +165,7 @@ uint64_t Histogram::getValueAtPercentile(double requestedPercentile) const
             totalToCurrentIJ += getCountAtIndex(i, j);
             if (totalToCurrentIJ >= countAtPercentile)
             {
-                return ((uint64_t) j) << i;
+                return valueFromIndex(i, j);
             }
         }
     }
@@ -192,6 +197,43 @@ double Histogram::getPercentileAtOrBelowValue(uint64_t value) const
     }
 
     return (100.0 * totalToCurrentIJ) / getTotalCount();
+}
+
+uint64_t Histogram::getCountBetweenValues(uint64_t lo, uint64_t hi) const
+{
+    auto count = 0ULL;
+
+    auto loBucketIndex    = getBucketIndex(lo);
+    auto loSubBucketIndex = getSubBucketIndex(lo, loBucketIndex);
+    auto valueAtLo        = valueFromIndex(loBucketIndex, loSubBucketIndex);
+
+    auto hiBucketIndex    = getBucketIndex(hi);
+    auto hiSubBucketIndex = getSubBucketIndex(hi, hiBucketIndex);
+    auto valueAtHi        = valueFromIndex(hiBucketIndex, hiSubBucketIndex);
+
+    if (loBucketIndex >= bucketCount || hiBucketIndex >= bucketCount)
+    {
+        return 0;
+    }
+
+    for (auto i = loBucketIndex; i <= hiBucketIndex; i++)
+    {
+        auto j = (i == 0) ? 0 : (subBucketCount / 2);
+        for (; j < subBucketCount; j++)
+        {
+            auto valueAtIndex = valueFromIndex(i, j);
+            if (valueAtIndex > valueAtHi)
+            {
+                return count;
+            }
+            if (valueAtIndex >= valueAtLo)
+            {
+                count += getCountAtIndex(i, j);
+            }
+        }
+    }
+
+    return count;
 }
 
 /////////////////// Index Calcuations /////////////////////

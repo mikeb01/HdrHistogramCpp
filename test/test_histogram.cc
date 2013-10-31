@@ -123,3 +123,14 @@ TEST(ShouldGetPercentileAtOrBelowValue)
     CHECK_CLOSE(50.0,  histogramCorrected.getPercentileAtOrBelowValue(5000),       0.0001);
     CHECK_CLOSE(100.0, histogramCorrected.getPercentileAtOrBelowValue(100000000L), 0.0001);    
 }
+
+TEST(ShouldGetCountBetweenValues)
+{
+    Histogram histogram{ HIGHEST_TRACKABLE_VALUE, SIGNIFICANT_DIGITS };
+    Histogram histogramCorrected{ HIGHEST_TRACKABLE_VALUE, SIGNIFICANT_DIGITS };
+    loadHistograms(histogram, histogramCorrected);
+
+    CHECK_EQUAL(10000, histogram.getCountBetweenValues(1000L, 1000L));
+    CHECK_EQUAL(1,     histogram.getCountBetweenValues(5000L, 150000000L));
+    CHECK_EQUAL(10000, histogramCorrected.getCountBetweenValues(5000L, 150000000L));
+}
