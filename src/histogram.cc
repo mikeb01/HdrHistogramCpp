@@ -155,7 +155,7 @@ uint64_t Histogram::getValueAtPercentile(double requestedPercentile) const
     for (uint32_t i = 0; i < bucketCount; i++)
     {
         uint32_t j = (i == 0) ? 0 : (subBucketCount / 2);
-        for (; j < subBucketCount / 2; j++)
+        for (; j < subBucketCount; j++)
         {
             totalToCurrentIJ += getCountAtIndex(i, j);
             if (totalToCurrentIJ >= countAtPercentile)

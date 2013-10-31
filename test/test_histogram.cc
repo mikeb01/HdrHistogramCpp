@@ -14,7 +14,7 @@ TEST(ShouldUseAccessors)
 
 TEST(ShouldRecordValue)
 {
-    uint64_t testValue;
+    uint64_t testValue = 4;
     Histogram h{ 100000000, 3 };
 
     h.recordValue(testValue);
