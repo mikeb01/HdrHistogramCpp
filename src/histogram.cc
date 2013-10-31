@@ -20,7 +20,7 @@ static uint64_t power(uint64_t base, uint64_t exp)
     return result;
 }
 
-static uint64_t valueFromIndex(uint32_t bucketIndex, uint32_t subBucketIndex)
+static inline uint64_t valueFromIndex(uint32_t bucketIndex, uint32_t subBucketIndex)
 {
     return ((uint64_t) subBucketIndex) << bucketIndex;
 }
