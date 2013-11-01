@@ -101,7 +101,7 @@ void Histogram::forAll(std::function<void (const uint64_t value, const uint64_t 
             bucketIndex++;
         }
 
-        valueAtThisIndex = subBucketIndex << bucketIndex;
+        valueAtThisIndex = valueFromIndex(bucketIndex, subBucketIndex);
     }
 }
 
