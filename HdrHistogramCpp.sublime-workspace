@@ -4,16 +4,84 @@
 		"selected_items":
 		[
 			[
+				"val",
+				"valueFromIndex"
+			],
+			[
+				"C",
+				"CHECK_EQUAL"
+			],
+			[
+				"value",
+				"valueFromIndex"
+			],
+			[
+				"v",
+				"valueAtLo"
+			],
+			[
+				"va",
+				"valueAtHi"
+			],
+			[
+				"valu",
+				"valueAtIndex"
+			],
+			[
+				"b",
+				"bucketIndex"
+			],
+			[
+				"sub",
+				"subBucketIndex"
+			],
+			[
+				"bu",
+				"bucketIndex"
+			],
+			[
+				"uin",
+				"uint32_t"
+			],
+			[
+				"hi",
+				"hiBucketIndex"
+			],
+			[
+				"lo",
+				"loBucketIndex"
+			],
+			[
+				"tot",
+				"totalToCurrentIJ"
+			],
+			[
+				"tar",
+				"targetSubBucketIndex"
+			],
+			[
+				"en",
+				"endl"
+			],
+			[
+				"cou",
+				"countAtPercentile"
+			],
+			[
+				"to",
+				"totalToCurrentIJ"
+			],
+			[
+				"test",
+				"testName"
+			],
+			[
 				"ar",
 				"argv"
 			],
 			[
 				"buc",
 				"bucketCount"
-			],
-			[
-				"uin",
-				"uint32_t"
 			],
 			[
 				"u",
@@ -32,10 +100,6 @@
 				"recordValue"
 			],
 			[
-				"cou",
-				"countsIndexFor"
-			],
-			[
 				"coun",
 				"countsIndex"
 			],
@@ -44,24 +108,12 @@
 				"countsArrayIndex"
 			],
 			[
-				"sub",
-				"subBucketIndex"
-			],
-			[
-				"bu",
-				"bucketIndex"
-			],
-			[
 				"in",
 				"incrementCountAtIndex"
 			],
 			[
 				"ui",
 				"uint64_t"
-			],
-			[
-				"b",
-				"bucketIndex"
 			],
 			[
 				"un",
@@ -82,10 +134,6 @@
 			[
 				"n",
 				"numberOfSignificantValueDigits"
-			],
-			[
-				"hi",
-				"highestTrackableValue"
 			],
 			[
 				"unt",
@@ -116,10 +164,6 @@
 				"msg_len"
 			],
 			[
-				"va",
-				"validate_checksum"
-			],
-			[
 				"ca",
 				"calculated"
 			],
@@ -132,24 +176,12 @@
 				"msg_type_len"
 			],
 			[
-				"valu",
-				"value_len"
-			],
-			[
 				"ms",
 				"msg_type"
 			],
 			[
 				"end",
 				"endp"
-			],
-			[
-				"value",
-				"valueEndPosition"
-			],
-			[
-				"v",
-				"valueStartPosition"
 			],
 			[
 				"ta",
@@ -256,10 +288,6 @@
 				"lo_char"
 			],
 			[
-				"lo",
-				"lo_char"
-			],
-			[
 				"a",
 				"a	Tag"
 			]
@@ -271,7 +299,7 @@
 			"file": "SConstruct",
 			"settings":
 			{
-				"buffer_size": 750,
+				"buffer_size": 793,
 				"line_ending": "Unix"
 			}
 		},
@@ -279,24 +307,23 @@
 			"file": "src/histogram.cc",
 			"settings":
 			{
-				"buffer_size": 8250,
+				"buffer_size": 10158,
 				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/test.c",
-			"settings":
-			{
-				"buffer_size": 167,
-				"line_ending": "Unix",
-				"name": "int main(int argc, char** argv)"
 			}
 		},
 		{
 			"file": "test/test_histogram.cc",
 			"settings":
 			{
-				"buffer_size": 4221,
+				"buffer_size": 5747,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/histogram.h",
+			"settings":
+			{
+				"buffer_size": 2106,
 				"line_ending": "Unix"
 			}
 		}
@@ -325,6 +352,12 @@
 	},
 	"file_history":
 	[
+		"/home/barkerm/sources/cpp/HdrHistogramCpp/src/test.c",
+		"/home/barkerm/sources/cpp/HdrHistogramCpp/lib/test/UnitTest++/src/TestDetails.h",
+		"/home/barkerm/sources/cpp/HdrHistogramCpp/lib/test/UnitTest++/src/Test.h",
+		"/home/barkerm/sources/cpp/HdrHistogramCpp/lib/test/UnitTest++/src/TestRunner.h",
+		"/home/barkerm/sources/cpp/HdrHistogramCpp/test/run_one.cc",
+		"/home/barkerm/sources/cpp/HdrHistogramCpp/lib/test/UnitTest++/src/TestRunner.cpp",
 		"/home/barkerm/sources/cpp/HdrHistogramCpp/HdrHistogramCpp.sublime-project",
 		"/Users/mikeb01/Documents/sources/HdrHistogram++/hdrhistogramcpp.sublime-project",
 		"/Users/mikeb01/Library/Application Support/Sublime Text 2/Packages/User/scons.sublime-build",
@@ -413,7 +446,7 @@
 	},
 	"find_in_files":
 	{
-		"height": 0.0,
+		"height": 90.0,
 		"where_history":
 		[
 			"*.cpp,*.h",
@@ -428,6 +461,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			";\n",
+			"Predicate",
 			"/src",
 			"getCountAtValue",
 			"getCountAtIn",
@@ -522,7 +557,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -530,15 +565,15 @@
 					"file": "SConstruct",
 					"settings":
 					{
-						"buffer_size": 750,
+						"buffer_size": 793,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								445,
-								445
+								424,
+								424
 							]
 						],
 						"settings":
@@ -556,15 +591,15 @@
 					"file": "src/histogram.cc",
 					"settings":
 					{
-						"buffer_size": 8250,
+						"buffer_size": 10158,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4921,
-								4921
+								8829,
+								8829
 							]
 						],
 						"settings":
@@ -574,31 +609,32 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2141.0,
+						"translation.y": 3978.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 2,
-					"file": "src/test.c",
+					"file": "test/test_histogram.cc",
 					"settings":
 					{
-						"buffer_size": 167,
+						"buffer_size": 5747,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								118,
-								118
+								5464,
+								5464
 							]
 						],
 						"settings":
 						{
-							"auto_name": "int main(int argc, char** argv)",
-							"syntax": "Packages/C++/C.tmLanguage"
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -608,18 +644,18 @@
 				},
 				{
 					"buffer": 3,
-					"file": "test/test_histogram.cc",
+					"file": "src/histogram.h",
 					"settings":
 					{
-						"buffer_size": 4221,
+						"buffer_size": 2106,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								341,
-								341
+								941,
+								941
 							]
 						],
 						"settings":
@@ -682,6 +718,10 @@
 		"height": 0.0,
 		"selected_items":
 		[
+			[
+				"hi",
+				"src/histogram.h"
+			],
 			[
 				"scon",
 				"SConstruct"
