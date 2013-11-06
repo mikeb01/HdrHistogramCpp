@@ -8,56 +8,76 @@ class Histogram final
 {
 
 public:
-    Histogram( uint64_t highestTrackableValue,
-               uint64_t numberOfSignificantValueDigits );
+
+    class HistogramValue final
+    {
+        friend class Histogram;
+    public:
+        HistogramValue();
+        ~HistogramValue();
+    private:
+        int64_t valueIteratedTo;
+        int64_t valueIteratedFrom;
+        int64_t countAtValueIteratedTo;
+        int64_t countAddedInThisIterationStep;
+        int64_t totalCountToThisValue;
+        int64_t totalValueToThisValue;
+        double percentile;
+        double percentileLevelIteratedTo;
+    };
+
+    Histogram(int64_t highestTrackableValue,
+              int64_t numberOfSignificantValueDigits);
     ~Histogram();
 
-    uint64_t getHighestTrackableValue() const;
-    uint64_t getNumberOfSignificantValueDigits() const;
-    uint64_t getTotalCount() const;
-    uint64_t getCountAtValue(uint64_t value) const;
+    int64_t getHighestTrackableValue() const;
+    int64_t getNumberOfSignificantValueDigits() const;
+    int64_t getTotalCount() const;
+    int64_t getCountAtValue(int64_t value) const;
 
-    void forAll(std::function<void (const uint64_t value, const uint64_t count)> func) const;
-    uint64_t getMaxValue()  const;
-    uint64_t getMinValue()  const;
+    void forAll(std::function<void (const int64_t value, const int64_t count)> func) const;
+    // void forAllValues(std::function<void (const HistogramValue& histogramValue)> func) const;
+
+    int64_t getMaxValue()  const;
+    int64_t getMinValue()  const;
     double getMeanValue() const;
-    uint64_t medianEquivalentValue(uint64_t value) const;
-    uint64_t sizeOfEquivalentRange(uint64_t value) const;
-    uint64_t getValueAtPercentile(double percentile) const;
-    double getPercentileAtOrBelowValue(uint64_t value) const;
-    uint64_t getCountBetweenValues(uint64_t lo, uint64_t hi) const;
+    int64_t medianEquivalentValue(int64_t value) const;
+    int64_t sizeOfEquivalentRange(int64_t value) const;
+    int64_t getValueAtPercentile(double percentile) const;
+    double getPercentileAtOrBelowValue(int64_t value) const;
+    int64_t getCountBetweenValues(int64_t lo, int64_t hi) const;
 
-    void recordValue(uint64_t value);
-    void recordValue(uint64_t value, uint64_t expectedInterval);
+    void recordValue(int64_t value);
+    void recordValue(int64_t value, int64_t expectedInterval);
 
     void print( std::ostream& stream ) const;
-    bool valuesAreEquivalent(uint64_t a, uint64_t b) const;
+    bool valuesAreEquivalent(int64_t a, int64_t b) const;
 
 private:
-    uint64_t identityCount;
-    uint64_t highestTrackableValue;
-    uint64_t numberOfSignificantValueDigits;
-    uint32_t subBucketHalfCountMagnitude;
-    uint32_t subBucketHalfCount;
-    uint64_t subBucketMask;
-    uint32_t subBucketCount;
-    uint32_t bucketCount;
-    uint32_t countsArrayLength;
-    uint64_t totalCount;
-    std::vector< uint64_t > counts;
+    int64_t identityCount;
+    int64_t highestTrackableValue;
+    int64_t numberOfSignificantValueDigits;
+    int32_t subBucketHalfCountMagnitude;
+    int32_t subBucketHalfCount;
+    int64_t subBucketMask;
+    int32_t subBucketCount;
+    int32_t bucketCount;
+    int32_t countsArrayLength;
+    int64_t totalCount;
+    std::vector< int64_t > counts;
 
     void init();
 
-    uint32_t getBucketIndex(uint64_t value) const;
-    uint32_t getSubBucketIndex(uint64_t value, uint32_t bucketIndex) const;
-    uint32_t countsArrayIndex(uint32_t bucketIndex, uint32_t subBucketIndex) const;
-    uint32_t countsIndexFor(uint64_t value) const;
-    uint64_t getCountAtIndex(uint32_t bucketIndex, uint32_t subBucketIndex) const;
+    int32_t getBucketIndex(int64_t value) const;
+    int32_t getSubBucketIndex(int64_t value, int32_t bucketIndex) const;
+    int32_t countsArrayIndex(int32_t bucketIndex, int32_t subBucketIndex) const;
+    int32_t countsIndexFor(int64_t value) const;
+    int64_t getCountAtIndex(int32_t bucketIndex, int32_t subBucketIndex) const;
 
-    void incrementCountAtIndex(uint32_t countsIndex);
+    void incrementCountAtIndex(int32_t countsIndex);
     void incrementTotalCount();
 
-    uint64_t lowestEquivalentValue(uint64_t a) const;
+    int64_t lowestEquivalentValue(int64_t a) const;
 };
 
 std::ostream& operator<< (std::ostream& stream, const Histogram& matrix);

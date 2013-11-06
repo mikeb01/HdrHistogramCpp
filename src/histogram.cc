@@ -10,7 +10,7 @@
 
 #include "histogram.h"
 
-static uint64_t power(uint64_t base, uint64_t exp)
+static int64_t power(int64_t base, int64_t exp)
 {
     int result = 1;
     while(exp)
@@ -20,13 +20,29 @@ static uint64_t power(uint64_t base, uint64_t exp)
     return result;
 }
 
-static inline uint64_t valueFromIndex(uint32_t bucketIndex, uint32_t subBucketIndex)
+static inline int64_t valueFromIndex(int32_t bucketIndex, int32_t subBucketIndex)
 {
-    return ((uint64_t) subBucketIndex) << bucketIndex;
+    return ((int64_t) subBucketIndex) << bucketIndex;
 }
 
-Histogram::Histogram( uint64_t highestTrackableValue,
-                      uint64_t numberOfSignificantValueDigits ) :
+Histogram::HistogramValue::HistogramValue() :
+    valueIteratedTo{ 0 },
+    valueIteratedFrom{ 0 },
+    countAtValueIteratedTo{ 0 },
+    countAddedInThisIterationStep{ 0 },
+    totalCountToThisValue{ 0 },
+    totalValueToThisValue{ 0 },
+    percentile{ 0.0 },
+    percentileLevelIteratedTo{ 0.0 }
+{
+}
+
+Histogram::HistogramValue::~HistogramValue()
+{
+}
+
+Histogram::Histogram(int64_t highestTrackableValue,
+                     int64_t numberOfSignificantValueDigits) :
     highestTrackableValue{ highestTrackableValue },
     numberOfSignificantValueDigits{ numberOfSignificantValueDigits },
     counts{ 0 },
@@ -43,16 +59,16 @@ Histogram::~Histogram()
 void Histogram::init()
 {
     auto largestValueWithSingleUnitResolution = 2 * power(10, numberOfSignificantValueDigits);
-    auto subBucketCountMagnitude = (uint32_t) ceil(log(largestValueWithSingleUnitResolution)/log(2));
+    auto subBucketCountMagnitude = (int32_t) ceil(log(largestValueWithSingleUnitResolution)/log(2));
 
     subBucketHalfCountMagnitude = ((subBucketCountMagnitude > 1) ? subBucketCountMagnitude : 1) - 1;
 
-    subBucketCount     = (uint32_t) pow(2, (subBucketHalfCountMagnitude + 1));
+    subBucketCount     = (int32_t) pow(2, (subBucketHalfCountMagnitude + 1));
     subBucketHalfCount = subBucketCount / 2;
     subBucketMask      = subBucketCount - 1;
 
     // determine exponent range needed to support the trackable value with no overflow:
-    auto trackableValue = (uint64_t) subBucketCount - 1;
+    auto trackableValue = (int64_t) subBucketCount - 1;
     auto bucketsNeeded = 1;
     while (trackableValue < highestTrackableValue)
     {
@@ -65,27 +81,27 @@ void Histogram::init()
 
 /////////////////// Properties /////////////////////
 
-uint64_t Histogram::getHighestTrackableValue() const
+int64_t Histogram::getHighestTrackableValue() const
 {
     return highestTrackableValue;
 }
 
-uint64_t Histogram::getNumberOfSignificantValueDigits() const
+int64_t Histogram::getNumberOfSignificantValueDigits() const
 {
     return numberOfSignificantValueDigits;
 }
 
-uint64_t Histogram::getTotalCount() const
+int64_t Histogram::getTotalCount() const
 {
     return totalCount;
 }
 
-void Histogram::forAll(std::function<void (const uint64_t value, const uint64_t count)> func) const
+void Histogram::forAll(std::function<void (const int64_t value, const int64_t count)> func) const
 {
-    uint32_t bucketIndex      = 0;
-    uint32_t subBucketIndex   = 0;
-    uint32_t countToIndex     = 0;
-    uint64_t valueAtThisIndex = 0;
+    int32_t bucketIndex      = 0;
+    int32_t subBucketIndex   = 0;
+    int32_t countToIndex     = 0;
+    int64_t valueAtThisIndex = 0;
 
     while (countToIndex < totalCount)
     {
@@ -105,11 +121,32 @@ void Histogram::forAll(std::function<void (const uint64_t value, const uint64_t 
     }
 }
 
-uint64_t Histogram::getMaxValue() const
-{
-    uint64_t maxValue = 0;
+// void Histogram::forAllValues(std::function<void (const HistogramValue& histogramValue)> func) const
+// {
+//     HistogramValue histogramValue{};
 
-    forAll([&] (uint64_t value, uint64_t count)
+//     forAll([&] (int64_t value, int64_t count)
+//     {
+//         histogramValue.valueIteratedTo   = highestEquivalentValue(value);
+//         histogramValue.valueIteratedFrom = histogramValue.valueIteratedTo;
+
+//         histogramValue.countAtValueIteratedTo        = count;
+//         histogramValue.countAddedInThisIterationStep = count;
+
+//         histogramValue.totalCountToThisValue += count;
+//         histogramValue.totalValueToThisValue += count * medianEquivalentValue(value);
+
+//         func(histogramValue);
+//     });
+
+//     return;
+// }
+
+int64_t Histogram::getMaxValue() const
+{
+    int64_t maxValue = 0;
+
+    forAll([&] (int64_t value, int64_t count)
     {
         if (0 != count)
         {
@@ -120,11 +157,11 @@ uint64_t Histogram::getMaxValue() const
     return maxValue;
 }
 
-uint64_t Histogram::getMinValue() const
+int64_t Histogram::getMinValue() const
 {
-    uint64_t minValue = 0;
+    int64_t minValue = 0;
 
-    forAll([&] (uint64_t value, uint64_t count)
+    forAll([&] (int64_t value, int64_t count)
     {
         if (0 != count && 0 == minValue)
         {
@@ -137,9 +174,9 @@ uint64_t Histogram::getMinValue() const
 
 double Histogram::getMeanValue() const
 {
-    uint64_t totalValue = 0;
+    int64_t totalValue = 0;
 
-    forAll([&] (uint64_t value, uint64_t count)
+    forAll([&] (int64_t value, int64_t count)
     {
         if (0 != count)
         {
@@ -150,16 +187,16 @@ double Histogram::getMeanValue() const
     return (totalValue * 1.0) / totalCount;
 }
 
-uint64_t Histogram::getValueAtPercentile(double requestedPercentile) const
+int64_t Histogram::getValueAtPercentile(double requestedPercentile) const
 {
     auto percentile        = fmin(fmax(requestedPercentile, 0), 100.0);
-    auto countAtPercentile = (uint64_t) (((percentile / 100.0) * totalCount) + 0.5);
-    countAtPercentile      = (uint64_t) countAtPercentile > 1 ? countAtPercentile : 1;
+    auto countAtPercentile = (int64_t) (((percentile / 100.0) * totalCount) + 0.5);
+    countAtPercentile      = (int64_t) countAtPercentile > 1 ? countAtPercentile : 1;
 
     auto totalToCurrentIJ = 0UL;
-    for (uint32_t i = 0; i < bucketCount; i++)
+    for (int32_t i = 0; i < bucketCount; i++)
     {
-        uint32_t j = (i == 0) ? 0 : (subBucketCount / 2);
+        int32_t j = (i == 0) ? 0 : (subBucketCount / 2);
         for (; j < subBucketCount; j++)
         {
             totalToCurrentIJ += getCountAtIndex(i, j);
@@ -173,7 +210,7 @@ uint64_t Histogram::getValueAtPercentile(double requestedPercentile) const
     return 0;
 }
 
-double Histogram::getPercentileAtOrBelowValue(uint64_t value) const
+double Histogram::getPercentileAtOrBelowValue(int64_t value) const
 {
     auto totalToCurrentIJ = 0ULL;
 
@@ -185,7 +222,7 @@ double Histogram::getPercentileAtOrBelowValue(uint64_t value) const
         return 100.0;
     }
 
-    for (uint32_t i = 0; i <= targetBucketIndex; i++)
+    for (int32_t i = 0; i <= targetBucketIndex; i++)
     {
         auto j = (i == 0) ? 0 : (subBucketCount / 2);
         auto subBucketCap = (i == targetBucketIndex) ? (targetSubBucketIndex + 1) : subBucketCount;
@@ -199,7 +236,7 @@ double Histogram::getPercentileAtOrBelowValue(uint64_t value) const
     return (100.0 * totalToCurrentIJ) / getTotalCount();
 }
 
-uint64_t Histogram::getCountBetweenValues(uint64_t lo, uint64_t hi) const
+int64_t Histogram::getCountBetweenValues(int64_t lo, int64_t hi) const
 {
     auto count = 0ULL;
 
@@ -238,7 +275,7 @@ uint64_t Histogram::getCountBetweenValues(uint64_t lo, uint64_t hi) const
 
 /////////////////// Index Calcuations /////////////////////
 
-uint32_t Histogram::countsIndexFor(uint64_t value) const
+int32_t Histogram::countsIndexFor(int64_t value) const
 {
     auto bucketIndex    = getBucketIndex(value);
     auto subBucketIndex = getSubBucketIndex(value, bucketIndex);
@@ -247,22 +284,22 @@ uint32_t Histogram::countsIndexFor(uint64_t value) const
     return countsIndex;
 }
 
-uint64_t Histogram::getCountAtValue(uint64_t value) const
+int64_t Histogram::getCountAtValue(int64_t value) const
 {
     return counts[countsIndexFor(value)];
 }
 
-uint64_t Histogram::getCountAtIndex(uint32_t bucketIndex, uint32_t subBucketIndex) const
+int64_t Histogram::getCountAtIndex(int32_t bucketIndex, int32_t subBucketIndex) const
 {
     return counts[countsArrayIndex(bucketIndex, subBucketIndex)];
 }
 
-uint32_t Histogram::getSubBucketIndex(uint64_t value, uint32_t bucketIndex) const
+int32_t Histogram::getSubBucketIndex(int64_t value, int32_t bucketIndex) const
 {
-    return (uint32_t)(value >> bucketIndex);
+    return (int32_t)(value >> bucketIndex);
 }
 
-uint32_t Histogram::countsArrayIndex(uint32_t bucketIndex, uint32_t subBucketIndex) const
+int32_t Histogram::countsArrayIndex(int32_t bucketIndex, int32_t subBucketIndex) const
 {
     assert(subBucketIndex < subBucketCount);
     assert(bucketIndex < bucketCount);
@@ -279,20 +316,20 @@ uint32_t Histogram::countsArrayIndex(uint32_t bucketIndex, uint32_t subBucketInd
 
 /////////////////// Value Recording /////////////////////
 
-void Histogram::recordValue(uint64_t value)
+void Histogram::recordValue(int64_t value)
 {
     incrementCountAtIndex(countsIndexFor(value));
     incrementTotalCount();
 }
 
-void Histogram::recordValue(uint64_t value, uint64_t expectedInterval)
+void Histogram::recordValue(int64_t value, int64_t expectedInterval)
 {
     recordValue(value);
     if (expectedInterval <= 0 || value <= expectedInterval)
     {
         return;
     }
-    uint64_t missingValue = value - expectedInterval;
+    int64_t missingValue = value - expectedInterval;
     for (; missingValue >= expectedInterval; missingValue -= expectedInterval)
     {
         recordValue(missingValue);
@@ -300,13 +337,13 @@ void Histogram::recordValue(uint64_t value, uint64_t expectedInterval)
 }
 
 
-uint32_t Histogram::getBucketIndex(uint64_t value) const
+int32_t Histogram::getBucketIndex(int64_t value) const
 {
     auto pow2ceiling = 64 - __lzcnt64(value | subBucketMask); // smallest power of 2 containing value
     return pow2ceiling - (subBucketHalfCountMagnitude + 1);
 }
 
-void Histogram::incrementCountAtIndex(uint32_t countsIndex)
+void Histogram::incrementCountAtIndex(int32_t countsIndex)
 {
     counts[countsIndex]++;
 }
@@ -318,12 +355,12 @@ void Histogram::incrementTotalCount()
 
 /////////////////// Utility /////////////////////
 
-bool Histogram::valuesAreEquivalent(uint64_t a, uint64_t b) const
+bool Histogram::valuesAreEquivalent(int64_t a, int64_t b) const
 {
     return lowestEquivalentValue(a) == lowestEquivalentValue(b);
 }
 
-uint64_t Histogram::lowestEquivalentValue(uint64_t value) const
+int64_t Histogram::lowestEquivalentValue(int64_t value) const
 {
     auto bucketIndex    = getBucketIndex(value);
     auto subBucketIndex = getSubBucketIndex(value, bucketIndex);
@@ -331,16 +368,16 @@ uint64_t Histogram::lowestEquivalentValue(uint64_t value) const
     return valueFromIndex(bucketIndex, subBucketIndex);
 }
 
-uint64_t Histogram::medianEquivalentValue(uint64_t value) const
+int64_t Histogram::medianEquivalentValue(int64_t value) const
 {
     return lowestEquivalentValue(value) + (sizeOfEquivalentRange(value) >> 1);
 }
 
-uint64_t Histogram::sizeOfEquivalentRange(uint64_t value) const
+int64_t Histogram::sizeOfEquivalentRange(int64_t value) const
 {
     auto bucketIndex    = getBucketIndex(value);
     auto subBucketIndex = getSubBucketIndex(value, bucketIndex);
-    uint64_t distanceToNextValue = (1 << ((subBucketIndex >= subBucketCount) ? (bucketIndex + 1) : bucketIndex));
+    int64_t distanceToNextValue = (1 << ((subBucketIndex >= subBucketCount) ? (bucketIndex + 1) : bucketIndex));
     return distanceToNextValue;
 }
 

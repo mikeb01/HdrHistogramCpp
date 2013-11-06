@@ -14,7 +14,7 @@ TEST(ShouldUseAccessors)
 
 TEST(ShouldRecordValue)
 {
-    uint64_t testValue = 4;
+    int64_t testValue = 4;
     Histogram h{ 100000000, 3 };
 
     h.recordValue(testValue);
@@ -22,8 +22,8 @@ TEST(ShouldRecordValue)
     CHECK_EQUAL(1, h.getTotalCount());
 }
 
-const uint64_t HIGHEST_TRACKABLE_VALUE = 3600000000;
-const uint64_t SIGNIFICANT_DIGITS = 3;
+const int64_t HIGHEST_TRACKABLE_VALUE = 3600000000;
+const int64_t SIGNIFICANT_DIGITS = 3;
 
 void loadHistograms(Histogram& histogramA, Histogram& histogramB)
 {
