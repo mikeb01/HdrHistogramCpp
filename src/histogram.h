@@ -38,8 +38,8 @@ public:
     void forAll(std::function<void (const int64_t value, const int64_t count)> func) const;
     // void forAllValues(std::function<void (const HistogramValue& histogramValue)> func) const;
 
-    int64_t getMaxValue()  const;
-    int64_t getMinValue()  const;
+    int64_t getMaxValue() const;
+    int64_t getMinValue() const;
     double getMeanValue() const;
     int64_t medianEquivalentValue(int64_t value) const;
     int64_t sizeOfEquivalentRange(int64_t value) const;
