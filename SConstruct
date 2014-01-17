@@ -2,7 +2,7 @@ import os
 
 env = Environment()
 env['ENV']['TERM'] = os.environ['TERM']
-env["CXX"] = "clang++"
+env["CXX"] = "~/opt/clang/current/bin/clang++"
 env["CPPPATH"] = []
 env["CPPFLAGS"] = ['-std=c++11', '-g']
 #env["CPPFLAGS"] += ['-stdlib=libc++']

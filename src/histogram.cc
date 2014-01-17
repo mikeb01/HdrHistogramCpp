@@ -121,6 +121,30 @@ void Histogram::forAll(std::function<void (const int64_t value, const int64_t co
     }
 }
 
+void Histogram::forPercentiles(const int32_t tickPerHalfDistance, std::function<void (const double percentileFrom, const double percentileTo, const int64_t value)> func) const
+{
+    double percentileIteratedTo   = 0.0;
+    double percentileIteratedFrom = 0.0;
+    int64_t countToIndex = 0;
+    const int64_t totalCount = getTotalCount();
+
+    forAll([&] (int64_t value, int64_t count)
+    {
+        countToIndex += count;
+
+        double currentPercentile = (100.0 * (double) countToIndex) / totalCount;
+
+        if (currentPercentile >= percentileIteratedTo)
+        {
+            percentileIteratedFrom = percentileIteratedTo;
+            int64_t percentileReportingTicks = tickPerHalfDistance * pow(2, (log(100 / (100.0 - (percentileIteratedTo))) / log(2)) + 1);
+            percentileIteratedTo += 100.0 / percentileReportingTicks;
+
+            func(percentileIteratedFrom, percentileIteratedTo, value);
+        }
+    });
+}
+
 // void Histogram::forAllValues(std::function<void (const HistogramValue& histogramValue)> func) const
 // {
 //     HistogramValue histogramValue{};
