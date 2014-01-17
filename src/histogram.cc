@@ -121,15 +121,24 @@ void Histogram::forAll(std::function<void (const int64_t value, const int64_t co
     }
 }
 
-void Histogram::forPercentiles(const int32_t tickPerHalfDistance, std::function<void (const double percentileFrom, const double percentileTo, const int64_t value)> func) const
+void Histogram::forPercentiles(const int32_t tickPerHalfDistance,
+                               std::function<void (const double percentileFrom,
+                                                   const double percentileTo,
+                                                   const int64_t value,
+                                                   const int64_t count)> func) const
 {
     double percentileIteratedTo   = 0.0;
     double percentileIteratedFrom = 0.0;
     int64_t countToIndex = 0;
     const int64_t totalCount = getTotalCount();
+    int64_t lastValue;
+    int64_t lastCount;
 
     forAll([&] (int64_t value, int64_t count)
     {
+        lastValue = highestEquivalentValue(value);
+        lastCount = count;
+
         countToIndex += count;
 
         double currentPercentile = (100.0 * (double) countToIndex) / totalCount;
@@ -137,12 +146,17 @@ void Histogram::forPercentiles(const int32_t tickPerHalfDistance, std::function<
         if (currentPercentile >= percentileIteratedTo)
         {
             percentileIteratedFrom = percentileIteratedTo;
-            int64_t percentileReportingTicks = tickPerHalfDistance * pow(2, (log(100 / (100.0 - (percentileIteratedTo))) / log(2)) + 1);
+            int64_t percentileReportingTicks = tickPerHalfDistance * (int64_t) pow(2, (int64_t) (log(100 / (100.0 - (percentileIteratedTo))) / log(2)) + 1);
             percentileIteratedTo += 100.0 / percentileReportingTicks;
 
-            func(percentileIteratedFrom, percentileIteratedTo, value);
+            func(percentileIteratedFrom, percentileIteratedTo, lastValue, count);
         }
     });
+
+    percentileIteratedFrom = percentileIteratedTo;
+    percentileIteratedTo = 100.0;
+
+    func(percentileIteratedFrom, percentileIteratedTo, lastValue, 0);
 }
 
 // void Histogram::forAllValues(std::function<void (const HistogramValue& histogramValue)> func) const
@@ -395,6 +409,16 @@ int64_t Histogram::lowestEquivalentValue(int64_t value) const
 int64_t Histogram::medianEquivalentValue(int64_t value) const
 {
     return lowestEquivalentValue(value) + (sizeOfEquivalentRange(value) >> 1);
+}
+
+int64_t Histogram::highestEquivalentValue(int64_t value) const
+{
+    return nextNonEquivalentValue(value) - 1;
+}
+
+int64_t Histogram::nextNonEquivalentValue(int64_t value) const
+{
+    return (lowestEquivalentValue(value) + (sizeOfEquivalentRange(value) >> 1));
 }
 
 int64_t Histogram::sizeOfEquivalentRange(int64_t value) const

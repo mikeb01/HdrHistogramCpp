@@ -147,3 +147,23 @@ TEST(ShouldGetCountAtValue)
     CHECK_EQUAL(10000, histogramCorrected.getCountAtValue(1000L));
 }
 
+TEST(ShouldHandleAllPercentiles)
+{
+    Histogram histogram{ HIGHEST_TRACKABLE_VALUE, SIGNIFICANT_DIGITS };
+    Histogram histogramCorrected{ HIGHEST_TRACKABLE_VALUE, SIGNIFICANT_DIGITS };
+    loadHistograms(histogram, histogramCorrected);
+
+    int64_t totalCount = 0;
+
+    histogram.forPercentiles(5, [&] (double to, double from, int64_t value, int64_t count)
+    {
+        totalCount += count;
+        std::cout << "To: " << to 
+                  << ", From: " << from 
+                  << ", Value: " << value 
+                  << ", Count: " << count 
+                  << ", Total: " << totalCount 
+                  << std::endl;        
+    });
+}
+

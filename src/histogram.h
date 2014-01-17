@@ -36,14 +36,21 @@ public:
     int64_t getCountAtValue(int64_t value) const;
 
     void forAll(std::function<void (const int64_t value, const int64_t count)> func) const;
-    void forPercentiles(const int32_t tickPerHalfDistance, std::function<void (const double percentileFrom, const double percentileTo, const int64_t value)> func) const;
+    void forPercentiles(const int32_t tickPerHalfDistance, 
+                        std::function<void (const double percentileFrom, 
+                                            const double percentileTo, 
+                                            const int64_t value,
+                                            const int64_t count)> func) const;
     // void forAllValues(std::function<void (const HistogramValue& histogramValue)> func) const;
 
     int64_t getMaxValue() const;
     int64_t getMinValue() const;
     double getMeanValue() const;
+    int64_t lowestEquivalentValue(int64_t value) const;
     int64_t medianEquivalentValue(int64_t value) const;
+    int64_t highestEquivalentValue(int64_t value) const;
     int64_t sizeOfEquivalentRange(int64_t value) const;
+    int64_t nextNonEquivalentValue(int64_t value) const;
     int64_t getValueAtPercentile(double percentile) const;
     double getPercentileAtOrBelowValue(int64_t value) const;
     int64_t getCountBetweenValues(int64_t lo, int64_t hi) const;
@@ -78,7 +85,6 @@ private:
     void incrementCountAtIndex(int32_t countsIndex);
     void incrementTotalCount();
 
-    int64_t lowestEquivalentValue(int64_t a) const;
 };
 
 std::ostream& operator<< (std::ostream& stream, const Histogram& matrix);
