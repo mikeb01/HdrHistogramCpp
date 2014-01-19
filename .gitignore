@@ -4,5 +4,6 @@
 *.a
 alltests
 onetest
-HdrHistogramCpp.sublime-workspace
+*.sublime-workspace
+*.sublime-project
 runtests
