@@ -2,12 +2,10 @@ import os
 
 env = Environment()
 env['ENV']['TERM'] = os.environ['TERM']
-#env["CXX"] = "~/opt/clang/current/bin/clang++"
+env['ENV']['PATH'] = os.environ['PATH']
 env["CXX"] = "clang++"
 env["CPPPATH"] = []
 env["CPPFLAGS"] = ['-std=c++11', '-g']
-#env["CPPFLAGS"] += ['-stdlib=libc++']
-#env["LINKFLAGS"] = ['-stdlib=libc++']
 
 lib = env.Clone()
 lib.StaticLibrary('libUnitTest++', Glob('lib/test/UnitTest++/src/*.cpp') +

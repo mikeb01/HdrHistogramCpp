@@ -100,9 +100,9 @@ int64_t Histogram::getTotalCount() const
 void Histogram::forAll(std::function<void (const int64_t value, const int64_t count)> func) const
 {
     int32_t bucketIndex      = 0;
-    int32_t subBucketIndex   = 1;
+    int32_t subBucketIndex   = 0;
     int32_t countToIndex     = 0;
-    int64_t valueAtThisIndex = 1;
+    int64_t valueAtThisIndex = 0;
 
     while (countToIndex < totalCount)
     {
