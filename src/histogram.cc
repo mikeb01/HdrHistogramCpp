@@ -99,13 +99,16 @@ int64_t Histogram::getTotalCount() const
 void Histogram::forAll(std::function<void (const int64_t value, const int64_t count)> func) const
 {
     int32_t bucketIndex      = 0;
-    int32_t subBucketIndex   = 0;
+    int32_t subBucketIndex   = 1;
     int32_t countToIndex     = 0;
-    int64_t valueAtThisIndex = 0;
+    int64_t valueAtThisIndex = 1;
 
     while (countToIndex < totalCount)
     {
         auto countAtThisIndex = getCountAtIndex(bucketIndex, subBucketIndex);
+
+        std::cout << bucketIndex << ", " << subBucketIndex << ", " << countAtThisIndex << std::endl;
+
         func(valueAtThisIndex, countAtThisIndex);
 
         countToIndex += countAtThisIndex;
@@ -127,36 +130,32 @@ void Histogram::forPercentiles(const int32_t tickPerHalfDistance,
                                                    const int64_t value,
                                                    const int64_t count)> func) const
 {
-    double percentileIteratedTo   = 0.0;
-    double percentileIteratedFrom = 0.0;
-    int64_t countToIndex = 0;
     const int64_t totalCount = getTotalCount();
-    int64_t lastValue;
-    int64_t lastCount;
+
+    double percentileToIterateTo     = 0.0;
+    int64_t totalCountToCurrentIndex = 0;
+    int64_t totalValueToCurrentIndex = 0;
+    bool freshSubBucket = true;
 
     forAll([&] (int64_t value, int64_t count)
     {
-        lastValue = highestEquivalentValue(value);
-        lastCount = count;
+        totalCountToCurrentIndex += count;
+        totalValueToCurrentIndex += count * medianEquivalentValue(value);
 
-        countToIndex += count;
-
-        double currentPercentile = (100.0 * (double) countToIndex) / totalCount;
-
-        if (currentPercentile >= percentileIteratedTo)
+        while (count != 0 && percentileToIterateTo <= (100.0 * (double) totalCountToCurrentIndex) / totalCount)
         {
-            percentileIteratedFrom = percentileIteratedTo;
-            int64_t percentileReportingTicks = tickPerHalfDistance * (int64_t) pow(2, (int64_t) (log(100 / (100.0 - (percentileIteratedTo))) / log(2)) + 1);
-            percentileIteratedTo += 100.0 / percentileReportingTicks;
+            double target = (100.0 * (double) totalCountToCurrentIndex) / totalCount;
+            std::cout << "Target: " << target << ", " << percentileToIterateTo << ", " << (percentileToIterateTo <= target) << std::endl;
+            int64_t currentValue = highestEquivalentValue(value);
 
-            func(percentileIteratedFrom, percentileIteratedTo, lastValue, count);
+            func(0.0, percentileToIterateTo, currentValue, totalCountToCurrentIndex);
+
+            int64_t percentileReportingTicks = tickPerHalfDistance * (int64_t) pow(2, (int64_t) (log(100 / (100.0 - (percentileToIterateTo))) / log(2)) + 1);
+            percentileToIterateTo += 100.0 / percentileReportingTicks;
         }
     });
 
-    percentileIteratedFrom = percentileIteratedTo;
-    percentileIteratedTo = 100.0;
-
-    func(percentileIteratedFrom, percentileIteratedTo, lastValue, 0);
+    func(0, 100.0, totalValueToCurrentIndex, totalCountToCurrentIndex);
 }
 
 // void Histogram::forAllValues(std::function<void (const HistogramValue& histogramValue)> func) const
@@ -418,7 +417,7 @@ int64_t Histogram::highestEquivalentValue(int64_t value) const
 
 int64_t Histogram::nextNonEquivalentValue(int64_t value) const
 {
-    return (lowestEquivalentValue(value) + (sizeOfEquivalentRange(value) >> 1));
+    return lowestEquivalentValue(value) + sizeOfEquivalentRange(value);
 }
 
 int64_t Histogram::sizeOfEquivalentRange(int64_t value) const

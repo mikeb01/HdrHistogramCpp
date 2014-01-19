@@ -121,7 +121,7 @@ TEST(ShouldGetPercentileAtOrBelowValue)
 
     CHECK_CLOSE(99.99, histogram.getPercentileAtOrBelowValue(5000),                0.0001);
     CHECK_CLOSE(50.0,  histogramCorrected.getPercentileAtOrBelowValue(5000),       0.0001);
-    CHECK_CLOSE(100.0, histogramCorrected.getPercentileAtOrBelowValue(100000000L), 0.0001);    
+    CHECK_CLOSE(100.0, histogramCorrected.getPercentileAtOrBelowValue(100000000L), 0.0001);
 }
 
 TEST(ShouldGetCountBetweenValues)
@@ -157,13 +157,11 @@ TEST(ShouldHandleAllPercentiles)
 
     histogram.forPercentiles(5, [&] (double to, double from, int64_t value, int64_t count)
     {
-        totalCount += count;
-        std::cout << "To: " << to 
-                  << ", From: " << from 
-                  << ", Value: " << value 
-                  << ", Count: " << count 
-                  << ", Total: " << totalCount 
-                  << std::endl;        
+        std::cout << "To: " << to
+                  << ", From: " << from
+                  << ", Value: " << value
+                  << ", Count: " << count
+                  << std::endl;
     });
 }
 
