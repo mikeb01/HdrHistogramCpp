@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <functional>
 
@@ -107,8 +108,6 @@ void Histogram::forAll(std::function<void (const int64_t value, const int64_t co
     {
         auto countAtThisIndex = getCountAtIndex(bucketIndex, subBucketIndex);
 
-        std::cout << bucketIndex << ", " << subBucketIndex << ", " << countAtThisIndex << std::endl;
-
         func(valueAtThisIndex, countAtThisIndex);
 
         countToIndex += countAtThisIndex;
@@ -125,17 +124,17 @@ void Histogram::forAll(std::function<void (const int64_t value, const int64_t co
 }
 
 void Histogram::forPercentiles(const int32_t tickPerHalfDistance,
-                               std::function<void (const double percentileFrom,
-                                                   const double percentileTo,
+                               std::function<void (const double percentileTo,
                                                    const int64_t value,
                                                    const int64_t count)> func) const
 {
     const int64_t totalCount = getTotalCount();
 
-    double percentileToIterateTo     = 0.0;
+    double  percentileToIterateTo    = 0.0;
     int64_t totalCountToCurrentIndex = 0;
     int64_t totalValueToCurrentIndex = 0;
-    bool freshSubBucket = true;
+    int64_t currentValue             = 0;
+    bool    freshSubBucket           = true;
 
     forAll([&] (int64_t value, int64_t count)
     {
@@ -144,40 +143,56 @@ void Histogram::forPercentiles(const int32_t tickPerHalfDistance,
 
         while (count != 0 && percentileToIterateTo <= (100.0 * (double) totalCountToCurrentIndex) / totalCount)
         {
-            double target = (100.0 * (double) totalCountToCurrentIndex) / totalCount;
-            std::cout << "Target: " << target << ", " << percentileToIterateTo << ", " << (percentileToIterateTo <= target) << std::endl;
-            int64_t currentValue = highestEquivalentValue(value);
+            currentValue = highestEquivalentValue(value);
 
-            func(0.0, percentileToIterateTo, currentValue, totalCountToCurrentIndex);
+            func(percentileToIterateTo, currentValue, totalCountToCurrentIndex);
+
+            if (totalCountToCurrentIndex >= totalCount)
+            {
+                break;
+            }
 
             int64_t percentileReportingTicks = tickPerHalfDistance * (int64_t) pow(2, (int64_t) (log(100 / (100.0 - (percentileToIterateTo))) / log(2)) + 1);
             percentileToIterateTo += 100.0 / percentileReportingTicks;
         }
     });
 
-    func(0, 100.0, totalValueToCurrentIndex, totalCountToCurrentIndex);
+    func(100.0, currentValue, totalCountToCurrentIndex);
 }
 
-// void Histogram::forAllValues(std::function<void (const HistogramValue& histogramValue)> func) const
-// {
-//     HistogramValue histogramValue{};
+void Histogram::outputPercentileValues(std::ostream& out, int tickPerHalfDistance, double unitScalingValue)
+{
+    out << "Value, Percentile, TotalCountIncludingThisValue" << std::endl << std::endl;
 
-//     forAll([&] (int64_t value, int64_t count)
-//     {
-//         histogramValue.valueIteratedTo   = highestEquivalentValue(value);
-//         histogramValue.valueIteratedFrom = histogramValue.valueIteratedTo;
+    forPercentiles(tickPerHalfDistance, [&] (double percentile, int64_t value, int64_t count)
+    {
+        double scaledValue = value/unitScalingValue;
+        out << std::setw(12) << std::setprecision(numberOfSignificantValueDigits) << std::fixed << scaledValue
+            << " "
+            << std::setw(2) << std::setprecision(12) << std::fixed << percentile/100.0
+            << " "
+            <<  std::setw(10) << count << std::endl;
+    });
 
-//         histogramValue.countAtValueIteratedTo        = count;
-//         histogramValue.countAddedInThisIterationStep = count;
+    double mean  = getMeanValue() / unitScalingValue;
+    double stddev = 0.0 / unitScalingValue;
+    double max = getMaxValue() / unitScalingValue;
 
-//         histogramValue.totalCountToThisValue += count;
-//         histogramValue.totalValueToThisValue += count * medianEquivalentValue(value);
+    out << "#[Mean    = " << std::setw(12) << std::setprecision(numberOfSignificantValueDigits) << std::fixed << mean
+        << ", "
+        << "StdDeviation = " << std::setw(12) << std::setprecision(numberOfSignificantValueDigits) << std::fixed << stddev
+        << "]" << std::endl;
 
-//         func(histogramValue);
-//     });
+    out << "#[Max     = " << std::setw(12) << std::setprecision(numberOfSignificantValueDigits) << std::fixed << max
+        << ", "
+        << "Total count  = " << std::setw(12) << totalCount
+        << "]" << std::endl;
 
-//     return;
-// }
+    out << "#[Buckets = " << std::setw(12) << bucketCount
+        << ", SubBuckets   = " << std::setw(12) << subBucketCount
+        << "]" << std::endl;
+
+}
 
 int64_t Histogram::getMaxValue() const
 {

@@ -153,15 +153,6 @@ TEST(ShouldHandleAllPercentiles)
     Histogram histogramCorrected{ HIGHEST_TRACKABLE_VALUE, SIGNIFICANT_DIGITS };
     loadHistograms(histogram, histogramCorrected);
 
-    int64_t totalCount = 0;
-
-    histogram.forPercentiles(5, [&] (double to, double from, int64_t value, int64_t count)
-    {
-        std::cout << "To: " << to
-                  << ", From: " << from
-                  << ", Value: " << value
-                  << ", Count: " << count
-                  << std::endl;
-    });
+    histogram.outputPercentileValues(std::cout, 5, 1.0);
 }
 

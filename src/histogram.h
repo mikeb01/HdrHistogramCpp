@@ -36,12 +36,11 @@ public:
     int64_t getCountAtValue(int64_t value) const;
 
     void forAll(std::function<void (const int64_t value, const int64_t count)> func) const;
-    void forPercentiles(const int32_t tickPerHalfDistance, 
-                        std::function<void (const double percentileFrom, 
-                                            const double percentileTo, 
+    void forPercentiles(const int32_t tickPerHalfDistance,
+                        std::function<void (const double percentileTo,
                                             const int64_t value,
                                             const int64_t count)> func) const;
-    // void forAllValues(std::function<void (const HistogramValue& histogramValue)> func) const;
+    void outputPercentileValues(std::ostream& out, int tickPerHalfDistance, double unitScalingValue);
 
     int64_t getMaxValue() const;
     int64_t getMinValue() const;
